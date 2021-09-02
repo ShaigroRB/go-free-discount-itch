@@ -6,7 +6,7 @@ The go-free-discount-itch package (*fditch for short*) is a package that exposes
 
 ## How to use
 ### Get the package
-`go get github.com/ShaigroRB/go-free-discount-itch`
+`go get -u github.com/ShaigroRB/go-free-discount-itch`
 
 ### Examples
 ```go
