@@ -73,8 +73,12 @@ func nodeToItemsWithoutEndDate(root *html.Node, maxItems int) chan Item {
 						continueTillNextGame = true
 						cell.ID = ""
 					}
-				} else if len(node.Attr) > 1 && node.Attr[1].Key == "data-background_image" {
-					cell.ImgLink = node.Attr[1].Val
+				} else if len(node.Attr) > 1 {
+					if attr := node.Attr[1]; attr.Key == "data-background_image" {
+						cell.ImgLink = attr.Val
+					} else if attr.Key == "class" && attr.Val == "game_text" {
+						cell.Description = node.FirstChild.Data
+					}
 				}
 			}
 		case atom.A:
