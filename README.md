@@ -14,6 +14,13 @@ The go-free-discount-itch package (_fditch for short_) is a package that exposes
 ### Examples
 
 ```go
+package main
+
+import (
+    "fmt"
+    fditch "github.com/ShaigroRB/go-free-discount-itch"
+)
+
 func main() {
     // get all items that are on 100% discount as json
     for _, category := range fditch.Categories {
