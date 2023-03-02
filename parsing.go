@@ -30,6 +30,71 @@ func getPreOrderQueue(root *html.Node) []*html.Node {
 	return res
 }
 
+// isNodeAGame checks if a html node is a game node
+func isNodeAGame(node *html.Node) bool {
+	if len(node.Attr) == 0 {
+		return false
+	}
+	if node.DataAtom == atom.Div {
+		divPossibleAttrs := getDivPossibleAttrs(node)
+		return divPossibleAttrs.dataGameID != ""
+	}
+	return false
+}
+
+type divPossibleAttrs struct {
+	dataGameID string
+	class      string
+}
+
+// getDivPossibleAttrs returns the possible attributes for a <div> node.
+func getDivPossibleAttrs(node *html.Node) divPossibleAttrs {
+	var divPossibleAttrs divPossibleAttrs
+	for _, attr := range node.Attr {
+		if attr.Key == "data-game_id" {
+			divPossibleAttrs.dataGameID = attr.Val
+		}
+		if attr.Key == "class" {
+			divPossibleAttrs.class = attr.Val
+		}
+	}
+	return divPossibleAttrs
+}
+
+type aPossibleAttrs struct {
+	class string
+	href  string
+}
+
+// getAPossibleAttrs returns the possible attributes for an <a> node.
+func getAPossibleAttrs(node *html.Node) aPossibleAttrs {
+	var aPossibleAttrs aPossibleAttrs
+	for _, attr := range node.Attr {
+		if attr.Key == "class" {
+			aPossibleAttrs.class = attr.Val
+		}
+		if attr.Key == "href" {
+			aPossibleAttrs.href = attr.Val
+		}
+	}
+	return aPossibleAttrs
+}
+
+type imgPossibleAttrs struct {
+	dataLazySrc string
+}
+
+// getImgPossibleAttrs returns the possible attributes for an <img> node.
+func getImgPossibleAttrs(node *html.Node) imgPossibleAttrs {
+	var imgPossibleAttrs imgPossibleAttrs
+	for _, attr := range node.Attr {
+		if attr.Key == "data-lazy_src" {
+			imgPossibleAttrs.dataLazySrc = attr.Val
+		}
+	}
+	return imgPossibleAttrs
+}
+
 // nodeToItemsWithoutEndDate returns a channel full of incomplete Item based on a node.
 // Those Item are missing the end date of the sale.
 func nodeToItemsWithoutEndDate(root *html.Node, maxItems int) chan Item {
@@ -38,13 +103,6 @@ func nodeToItemsWithoutEndDate(root *html.Node, maxItems int) chan Item {
 	nodes := getPreOrderQueue(root)
 
 	var cell Item
-
-	isNodeAGame := func(n *html.Node) bool {
-		if len(n.Attr) == 0 {
-			return false
-		}
-		return n.DataAtom == atom.Div && n.Attr[0].Key == "data-game_id"
-	}
 
 	continueTillNextGame := true
 
@@ -57,40 +115,48 @@ func nodeToItemsWithoutEndDate(root *html.Node, maxItems int) chan Item {
 
 		switch node.DataAtom {
 		case atom.Div:
-			if len(node.Attr) > 0 {
-				if attr := node.Attr[0]; attr.Key == "data-game_id" {
-					if cell.ID != "" {
-						cells <- cell
-					}
-					cell = Item{}
-					cell.ID = attr.Val
-				} else if attr.Key == "class" && attr.Val == "game_author" {
-					cell.Author = node.FirstChild.FirstChild.Data
-				} else if attr.Key == "class" &&
-					(attr.Val == "sale_tag" || attr.Val == "sale_tag reverse_sale") {
-					// cause yes, reverse sales are a thing in itch.io
+			divPossibleAttrs := getDivPossibleAttrs(node)
+			if divPossibleAttrs.dataGameID != "" {
+				// consider that the item has been fully parsed
+				if cell.ID != "" {
+					cells <- cell
+				}
+				cell = Item{}
+				cell.ID = divPossibleAttrs.dataGameID
+			} else if divPossibleAttrs.class != "" {
+				switch divPossibleAttrs.class {
+				case "game_author":
+					cell.Author = node.FirstChild.Data
+				case "game_text":
+					cell.Description = node.FirstChild.Data
+				case "sale_tag":
 					if node.FirstChild.Data != "-100%" {
 						continueTillNextGame = true
 						cell.ID = ""
 					}
-				} else if len(node.Attr) > 1 {
-					if attr := node.Attr[1]; attr.Key == "data-background_image" {
-						cell.ImgLink = attr.Val
-					} else if attr.Key == "class" && attr.Val == "game_text" {
-						cell.Description = node.FirstChild.Data
+				// cuz yes, reverse sales are a thing in itch.io
+				case "sale_tag reverse_sale":
+					if node.FirstChild.Data != "-100%" {
+						continueTillNextGame = true
+						cell.ID = ""
 					}
 				}
 			}
 		case atom.A:
-			if len(node.Attr) > 1 {
-				if attr := node.Attr[0]; attr.Key == "class" && attr.Val == "title game_link" {
-					cell.Link = node.Attr[1].Val
+			aPossibleAttrs := getAPossibleAttrs(node)
+			if aPossibleAttrs.class != "" {
+				switch aPossibleAttrs.class {
+				case "title game_link":
+					cell.Link = aPossibleAttrs.href
 					cell.Title = node.FirstChild.Data
-				} else if len(node.Attr) > 2 {
-					if attr = node.Attr[2]; attr.Key == "class" && attr.Val == "price_tag meta_tag sale" {
-						cell.SalesLink = node.Attr[0].Val
-					}
+				case "price_tag meta_tag sale":
+					cell.SalesLink = aPossibleAttrs.href
 				}
+			}
+		case atom.Img:
+			imgPossibleAttrs := getImgPossibleAttrs(node)
+			if imgPossibleAttrs.dataLazySrc != "" {
+				cell.ImgLink = imgPossibleAttrs.dataLazySrc
 			}
 		default:
 			continue
@@ -103,8 +169,19 @@ func nodeToItemsWithoutEndDate(root *html.Node, maxItems int) chan Item {
 
 // parseEndDate looks for the end date hidden in the body of a sales page.
 func parseEndDate(body string) string {
+	// if end_date is not at the end of the body
 	regx := regexp.MustCompile(`end_date\".*\",`)
 	matches := regx.FindStringSubmatch(body)
+	// if end_date is at the end of the body
+	if len(matches) == 0 {
+		regx = regexp.MustCompile(`end_date\".*\"}`)
+		matches = regx.FindStringSubmatch(body)
+	}
+
+	if len(matches) == 0 {
+		return "End date for the item was not found. Please report this bug to https://github.com/ShaigroRB/go-free-discount-itch/issues"
+	}
+
 	regx = regexp.MustCompile(`[0-9]+-[^\"]*`)
 	matches = regx.FindStringSubmatch(matches[0])
 
