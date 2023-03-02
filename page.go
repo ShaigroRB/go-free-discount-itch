@@ -81,55 +81,55 @@ func getContent(category string, page int, list *[]Content) (isLastPage bool, er
 type GetCategoryContentFn func(int, *[]Content) (bool, error)
 
 // GetGameAssetsContent puts in a list the `game-assets` type content for a given page.
-// It returns whether it was the last pageand an error if any.
+// It returns whether it was the last page and an error if any.
 func GetGameAssetsContent(page int, list *[]Content) (isLastPage bool, err error) {
 	return getContent("game-assets", page, list)
 }
 
 // GetBooksContent puts in a list the `books` type content for a given page.
-// It returns whether it was the last pageand an error if any.
+// It returns whether it was the last page and an error if any.
 func GetBooksContent(page int, list *[]Content) (isLastPage bool, err error) {
 	return getContent("books", page, list)
 }
 
 // GetComicsContent puts in a list the `comics` type content for a given page.
-// It returns whether it was the last pageand an error if any.
+// It returns whether it was the last page and an error if any.
 func GetComicsContent(page int, list *[]Content) (isLastPage bool, err error) {
 	return getContent("comics", page, list)
 }
 
 // GetToolsContent puts in a list the `tools` type content for a given page.
-// It returns whether it was the last pageand an error if any.
+// It returns whether it was the last page and an error if any.
 func GetToolsContent(page int, list *[]Content) (isLastPage bool, err error) {
 	return getContent("tools", page, list)
 }
 
 // GetGamesContent puts in a list the `games` type content for a given page.
-// It returns whether it was the last pageand an error if any.
+// It returns whether it was the last page and an error if any.
 func GetGamesContent(page int, list *[]Content) (isLastPage bool, err error) {
 	return getContent("games", page, list)
 }
 
 // GetPhysicalGamesContent puts in a list the `physical-games` type content for a given page.
-// It returns whether it was the last pageand an error if any.
+// It returns whether it was the last page and an error if any.
 func GetPhysicalGamesContent(page int, list *[]Content) (isLastPage bool, err error) {
 	return getContent("physical-games", page, list)
 }
 
 // GetSoundstracksContent puts in a list the `soundtracks` type content for a given page.
-// It returns whether it was the last pageand an error if any.
+// It returns whether it was the last page and an error if any.
 func GetSoundtracksContent(page int, list *[]Content) (isLastPage bool, err error) {
 	return getContent("soundtracks", page, list)
 }
 
 // GetGameModsContent puts in a list the `game-mods` type content for a given page.
-// It returns whether it was the last pageand an error if any.
+// It returns whether it was the last page and an error if any.
 func GetGameModsContent(page int, list *[]Content) (isLastPage bool, err error) {
 	return getContent("game-mods", page, list)
 }
 
 // GetMiscContent puts in a list the `misc` type content for a given page.
-// It returns whether it was the last pageand an error if any.
+// It returns whether it was the last page and an error if any.
 func GetMiscContent(page int, list *[]Content) (isLastPage bool, err error) {
 	return getContent("misc", page, list)
 }
