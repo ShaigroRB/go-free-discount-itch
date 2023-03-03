@@ -14,6 +14,7 @@ type Item struct {
 	Author      string `json:"author"`
 	SalesLink   string `json:"sales_link"`
 	EndDate     string `json:"end_date"`
+	Genre       string `json:"genre"`
 }
 
 // ToJSON converts the Item to a JSON string.
