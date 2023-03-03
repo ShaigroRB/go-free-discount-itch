@@ -95,6 +95,22 @@ func getImgPossibleAttrs(node *html.Node) imgPossibleAttrs {
 	return imgPossibleAttrs
 }
 
+func printNode(root *html.Node, depth int) {
+	fmt.Printf("%*s%s\n", depth*2, "", root.Data)
+	for _, attr := range root.Attr {
+		fmt.Printf("%*s%s=\"%s\"\n", depth*2, "", attr.Key, attr.Val)
+	}
+	for child := root.FirstChild; child != nil; child = child.NextSibling {
+		printNode(child, depth+1)
+	}
+}
+
+func printNodes(nodes []*html.Node, depth int) {
+	for _, node := range nodes {
+		printNode(node, depth)
+	}
+}
+
 // nodeToItemsWithoutEndDate returns a channel full of incomplete Item based on a node.
 // Those Item are missing the end date of the sale.
 func nodeToItemsWithoutEndDate(root *html.Node, maxItems int) chan Item {
