@@ -126,7 +126,7 @@ func nodeToItemsWithoutEndDate(root *html.Node, maxItems int) chan Item {
 			} else if divPossibleAttrs.class != "" {
 				switch divPossibleAttrs.class {
 				case "game_author":
-					cell.Author = node.FirstChild.Data
+					cell.Author = node.FirstChild.FirstChild.Data
 				case "game_text":
 					cell.Description = node.FirstChild.Data
 				case "sale_tag":
