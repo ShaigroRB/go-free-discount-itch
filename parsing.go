@@ -95,6 +95,21 @@ func getImgPossibleAttrs(node *html.Node) imgPossibleAttrs {
 	return imgPossibleAttrs
 }
 
+type spanPossibleAttrs struct {
+	class string
+}
+
+// getSpanPossibleAttrs returns the possible attributes for an <span> node.
+func getSpanPossibleAttrs(node *html.Node) spanPossibleAttrs {
+	var spanPossibleAttrs spanPossibleAttrs
+	for _, attr := range node.Attr {
+		if attr.Key == "class" {
+			spanPossibleAttrs.class = attr.Val
+		}
+	}
+	return spanPossibleAttrs
+}
+
 func printNode(root *html.Node, depth int) {
 	fmt.Printf("%*s%s\n", depth*2, "", root.Data)
 	for _, attr := range root.Attr {
@@ -137,7 +152,7 @@ func nodeToItemsWithoutEndDate(root *html.Node, maxItems int) chan Item {
 				if cell.ID != "" {
 					cells <- cell
 				}
-				cell = Item{}
+				cell = Item{Platforms: []string{}}
 				cell.ID = divPossibleAttrs.dataGameID
 			} else if divPossibleAttrs.class != "" {
 				switch divPossibleAttrs.class {
@@ -175,6 +190,20 @@ func nodeToItemsWithoutEndDate(root *html.Node, maxItems int) chan Item {
 			imgPossibleAttrs := getImgPossibleAttrs(node)
 			if imgPossibleAttrs.dataLazySrc != "" {
 				cell.ImgLink = imgPossibleAttrs.dataLazySrc
+			}
+		case atom.Span:
+			spanPossibleAttrs := getSpanPossibleAttrs(node)
+			switch spanPossibleAttrs.class {
+			case "icon icon-windows8":
+				cell.Platforms = append(cell.Platforms, "Windows")
+			case "icon icon-apple":
+				cell.Platforms = append(cell.Platforms, "macOS")
+			case "icon icon-tux":
+				cell.Platforms = append(cell.Platforms, "Linux")
+			case "icon icon-android":
+				cell.Platforms = append(cell.Platforms, "Android")
+			case "web_flag":
+				cell.Platforms = append(cell.Platforms, "Web")
 			}
 		default:
 			continue
