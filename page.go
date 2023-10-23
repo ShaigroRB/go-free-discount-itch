@@ -59,14 +59,27 @@ func getSales(link string) (string, error) {
 func getContent(category string, page int, list *[]Content) (isLastPage bool, err error) {
 	json, err := getJSON(category, page)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf(`
+		Function: getContent::getJSON
+		Context:
+		- category: %s
+		- page:     %d
+
+		Error: %s\n`, category, page, err)
 		return isLastPage, err
 	}
 
 	content := Content{}
 	err = content.FromJSON(json)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf(`
+		Function: getContent::content.FromJSON
+		Context:
+		- category: %s
+		- page:     %d
+		- json:	    %s
+
+		Error: %s\n`, category, page, json, err)
 		return isLastPage, err
 	}
 

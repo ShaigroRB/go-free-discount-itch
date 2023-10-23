@@ -226,6 +226,13 @@ func parseEndDate(body string) string {
 	}
 
 	if len(matches) == 0 {
+		fmt.Printf(`
+		Function: parseEndDate
+		Context:
+		- body: %s
+
+		Error: End date for the item was not found.\n`, body)
+
 		return "End date for the item was not found. Please report this bug to https://github.com/ShaigroRB/go-free-discount-itch/issues"
 	}
 
@@ -243,7 +250,12 @@ func ConvertContentToItems(content Content) (chan Item, error) {
 	reader := strings.NewReader(content.Content)
 	node, err := html.Parse(reader)
 	if err != nil {
-		fmt.Print(err)
+		fmt.Printf(`
+		Function: ConvertContentToItems::html.Parse
+		Context:
+		- content: %s
+
+		Error: %s\n`, content.Content, err)
 		return nil, err
 	}
 
@@ -255,7 +267,12 @@ func ConvertContentToItems(content Content) (chan Item, error) {
 	for partialItem := range partialItems {
 		body, err := getSales(partialItem.SalesLink)
 		if err != nil {
-			fmt.Print(err)
+			fmt.Printf(`
+			Function: ConvertContentToItems::getSales
+			Context:
+			- salesLink: %s
+
+			Error: %s\n`, partialItem.SalesLink, err)
 			return items, err
 		}
 
