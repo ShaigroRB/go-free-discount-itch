@@ -65,7 +65,8 @@ func getContent(category string, page int, list *[]Content) (isLastPage bool, er
 		- category: %s
 		- page:     %d
 
-		Error: %s\n`, category, page, err)
+		Error: %s
+		`, category, page, err)
 		return isLastPage, err
 	}
 
@@ -79,7 +80,8 @@ func getContent(category string, page int, list *[]Content) (isLastPage bool, er
 		- page:     %d
 		- json:	    %s
 
-		Error: %s\n`, category, page, json, err)
+		Error: %s
+		`, category, page, json, err)
 		return isLastPage, err
 	}
 

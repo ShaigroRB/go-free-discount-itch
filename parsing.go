@@ -231,7 +231,8 @@ func parseEndDate(body string) string {
 		Context:
 		- body: %s
 
-		Error: End date for the item was not found.\n`, body)
+		Error: End date for the item was not found.
+		`, body)
 
 		return "End date for the item was not found. Please report this bug to https://github.com/ShaigroRB/go-free-discount-itch/issues"
 	}
@@ -255,7 +256,8 @@ func ConvertContentToItems(content Content) (chan Item, error) {
 		Context:
 		- content: %s
 
-		Error: %s\n`, content.Content, err)
+		Error: %s
+		`, content.Content, err)
 		return nil, err
 	}
 
@@ -272,7 +274,8 @@ func ConvertContentToItems(content Content) (chan Item, error) {
 			Context:
 			- salesLink: %s
 
-			Error: %s\n`, partialItem.SalesLink, err)
+			Error: %s
+			`, partialItem.SalesLink, err)
 			return items, err
 		}
 
