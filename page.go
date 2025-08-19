@@ -16,6 +16,9 @@ const (
 
 	// max retries for API calls
 	maxRetries = 5
+
+	// max number of items returned by an API call
+	maxItems = 36
 )
 
 // fetchDataWithRetry returns the response of an HTTP GET request for a given URL.
@@ -115,7 +118,7 @@ func getContent(category string, page int, list *[]Content) (isLastPage bool, er
 
 	*list = append(*list, content)
 
-	isLastPage = content.NumItems < 30
+	isLastPage = content.NumItems < maxItems
 
 	return isLastPage, nil
 }
